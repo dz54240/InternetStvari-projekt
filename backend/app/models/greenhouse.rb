@@ -18,4 +18,12 @@ class Greenhouse < ApplicationRecord
   has_many :temperature_measurements, dependent: :destroy
 
   validates :name, presence: true
+
+  def last_temperature_measurement
+    temperature_measurements.order(created_at: :desc).first
+  end
+
+  def last_moisture_measurement
+    moisture_measurements.order(created_at: :desc).first
+  end
 end

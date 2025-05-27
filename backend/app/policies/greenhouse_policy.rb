@@ -21,12 +21,20 @@ class GreenhousePolicy < ApplicationPolicy
     user_is_owner?
   end
 
+  def measurments?
+    true
+  end
+
   def permitted_attributes_for_create
     permitted_attributes
   end
 
   def permitted_attributes_for_update
     permitted_attributes
+  end
+
+  def permitted_attributes_for_measurments_create
+    [:temperature, :moisture, :lighting, :irrigation, :window_open_percentage, :windows]
   end
 
   class Scope < Scope

@@ -3,5 +3,11 @@ Rails.application.routes.draw do
     resource :sessions, only: [:create, :destroy]
 
     resources :users, except: [:new, :edit]
+
+    resources :greenhouses, except: [:new, :edit] do
+      member do
+        post :measurments
+      end
+    end
   end
 end
