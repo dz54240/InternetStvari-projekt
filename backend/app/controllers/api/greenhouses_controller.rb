@@ -16,7 +16,6 @@ module Api
     end
 
     def create
-      binding.pry
       save_record(create_params)
     end
 

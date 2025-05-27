@@ -9,5 +9,9 @@ Rails.application.routes.draw do
         post :measurments
       end
     end
+
+    resources :temperature_measurements, only: [:index, :show]
+
+    resources :moisture_measurements, only: [:index, :show]
   end
 end
