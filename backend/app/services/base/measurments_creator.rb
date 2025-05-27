@@ -7,6 +7,7 @@ module Base
     end
 
     def create_measurments
+      @resource.update(updated_at: Time.now)
       update_greenhouse && create_temperature_measurement && create_moisture_measurement
     end
 
