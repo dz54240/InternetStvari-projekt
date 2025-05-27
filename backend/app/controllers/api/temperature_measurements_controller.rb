@@ -6,7 +6,6 @@ module Api
     before_action :preload_resource, only: [:show]
 
     def index
-      binding.pry
       render_json(scope)
     end
 
