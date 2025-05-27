@@ -33,7 +33,7 @@ export default function Register() {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Content style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Card style={{ width: 350, marginTop: 100 }}>
+        <Card style={{ width: 350 }}>
           <Form onFinish={handleRegister} layout="vertical">
             <Title level={3} style={{ textAlign: "center" }}>Registriraj se</Title>
             <Form.Item name="firstName" rules={[{ required: true, message: "Unesite svoje ime" }]}> 

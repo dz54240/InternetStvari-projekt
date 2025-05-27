@@ -49,7 +49,7 @@ const Navbar = () => {
         padding: "0 24px",
       }}
     >
-      <Title level={3} style={{ margin: 0 }}>
+      <Title level={3} style={{ margin: 0, cursor: "pointer" }} onClick={() => navigate("/home")}>
         Plantelligence
       </Title>
 

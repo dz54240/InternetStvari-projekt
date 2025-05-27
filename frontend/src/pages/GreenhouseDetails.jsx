@@ -12,6 +12,17 @@ import {
 } from "antd";
 import Navbar from "../components/Navbar";
 import { fetchApi, getToken } from "../utils/api";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -21,6 +32,8 @@ const GreenhouseDetails = () => {
   const navigate = useNavigate();
   const [greenhouse, setGreenhouse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [temperatureData, setTemperatureData] = useState([]);
+  const [moistureData, setMoistureData] = useState([]);
 
   useEffect(() => {
     const fetchGreenhouse = async () => {
@@ -30,6 +43,33 @@ const GreenhouseDetails = () => {
           Authorization: `Bearer ${token}`,
         });
         setGreenhouse(response.data);
+
+        const tempResponse = await fetchApi(
+          `/temperature_measurements?greenhouse_id=${id}`,
+          "GET",
+          null,
+          {
+            Authorization: `Bearer ${token}`,
+          }
+        );
+
+        const moistResponse = await fetchApi(
+          `/moisture_measurements?greenhouse_id=${id}`,
+          "GET",
+          null,
+          {
+            Authorization: `Bearer ${token}`,
+          }
+        );
+
+        const formatData = (data) =>
+          data.map((item) => ({
+            value: item.attributes.value,
+            time: new Date(item.attributes.created_at).toLocaleString(),
+          }));
+
+        setTemperatureData(formatData(tempResponse.data));
+        setMoistureData(formatData(moistResponse.data));
       } catch (error) {
         message.error("Greška pri dohvaćanju podataka o stakleniku.");
       } finally {
@@ -73,7 +113,6 @@ const GreenhouseDetails = () => {
       <Content style={{ padding: "40px", backgroundColor: "#fff", minHeight: "100vh" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
           <Title level={2}>Detalji staklenika</Title>
-
           <Card bordered style={{ marginBottom: "24px" }}>
             <Descriptions bordered column={1}>
               <Descriptions.Item label="Naziv">{attr.name}</Descriptions.Item>
@@ -97,7 +136,6 @@ const GreenhouseDetails = () => {
               </Descriptions.Item>
             </Descriptions>
           </Card>
-
           <div
             style={{
               display: "flex",
@@ -130,7 +168,6 @@ const GreenhouseDetails = () => {
                   </Typography.Text>
                 </div>
               </Card>
-
               <Card style={{ flex: 1, minWidth: "300px" }} bordered>
                 <Typography.Text strong>Zadnja izmjerena vlažnost</Typography.Text>
                 <div style={{ marginTop: "12px" }}>
@@ -147,6 +184,34 @@ const GreenhouseDetails = () => {
                 </div>
               </Card>
             </div>
+          </div>
+          <div style={{ marginTop: "40px" }}>
+            <Title level={4} style={{ textAlign: "center", marginBottom: "16px" }}>
+              Povijest mjerenja temperature
+            </Title>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={temperatureData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                <YAxis unit="°C" />
+                <Tooltip formatter={(value) => `${value} °C`} />
+                <Line type="monotone" dataKey="value" stroke="#ff4d4f" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ marginTop: "40px" }}>
+            <Title level={4} style={{ textAlign: "center", marginBottom: "16px" }}>
+              Povijest mjerenja vlažnosti
+            </Title>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={moistureData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                <YAxis unit="%" />
+                <Tooltip formatter={(value) => `${value} %`} />
+                <Area type="monotone" dataKey="value" stroke="#1890ff" fill="#e6f7ff" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </Content>

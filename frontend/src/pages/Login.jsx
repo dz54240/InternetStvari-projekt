@@ -29,7 +29,7 @@ export default function Login() {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Content style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Card style={{ width: 350, marginTop: 100 }}>
+        <Card style={{ width: 350 }}>
           <Form onFinish={handleLogin} layout="vertical">
             <Title level={3} style={{ textAlign: "center" }}>Prijavi se</Title>
             <Form.Item name="email" rules={[{ required: true, message: "Unesite svoju email adresu" }]}> 
