@@ -40,7 +40,7 @@ export default function Home() {
     try {
       if (editingGreenhouse) {
         await fetchApi(
-          `/api/greenhouses/${editingGreenhouse.id}`,
+          `/greenhouses/${editingGreenhouse.id}`,
           "PATCH",
           {
             data: { name },
@@ -58,7 +58,7 @@ export default function Home() {
         );
       } else {
         const response = await fetchApi(
-          "/api/greenhouses",
+          "/greenhouses",
           "POST",
           {
             data: { name },
@@ -78,7 +78,7 @@ export default function Home() {
   const handleDeleteGreenhouse = async (id) => {
     try {
       const token = getToken();
-      await fetchApi(`/api/greenhouses/${id}`, "DELETE", null, {
+      await fetchApi(`/greenhouses/${id}`, "DELETE", null, {
         Authorization: `Bearer ${token}`,
       });
       setGreenhouses(greenhouses.filter((gh) => gh.id !== id));
@@ -105,12 +105,12 @@ export default function Home() {
     }}
   >
     <Title level={2} style={{ textAlign: "center" }}>
-      Staklenici
+      Plastenici
     </Title>
 
     <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
       <Input
-        placeholder="Pretraži staklenike..."
+        placeholder="Pretraži plastenike..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         style={{ width: "250px" }}
@@ -120,7 +120,7 @@ export default function Home() {
         onClick={() => handleOpenModal()}
         style={{ width: "130px" }}
       >
-        Dodaj staklenik
+        Dodaj plastenik
       </Button>
     </div>
 

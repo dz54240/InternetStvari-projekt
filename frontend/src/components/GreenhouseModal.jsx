@@ -19,16 +19,16 @@ const GreenhouseModal = ({ isOpen, onClose, onSave, editingGreenhouse }) => {
 
   return (
     <Modal
-      title={editingGreenhouse ? "Uredi staklenik" : "Dodaj staklenik"}
+      title={editingGreenhouse ? "Uredi plastenik" : "Dodaj plastenik"}
       open={isOpen}
       onCancel={onClose}
       onOk={handleOk}
-      okText={editingGreenhouse ? "Spremi promjene" : "Dodaj staklenik"}
+      okText={editingGreenhouse ? "Spremi promjene" : "Dodaj plastenik"}
     >
       <Form layout="vertical">
         <Form.Item label="Name">
           <Input
-            placeholder="Unesite naziv staklenika"
+            placeholder="Unesite naziv plastenika"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />

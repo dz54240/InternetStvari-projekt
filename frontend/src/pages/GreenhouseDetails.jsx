@@ -71,7 +71,7 @@ const GreenhouseDetails = () => {
         setTemperatureData(formatData(tempResponse.data));
         setMoistureData(formatData(moistResponse.data));
       } catch (error) {
-        message.error("Greška pri dohvaćanju podataka o stakleniku.");
+        message.error("Greška pri dohvaćanju podataka o plasteniku.");
       } finally {
         setLoading(false);
       }
@@ -96,7 +96,7 @@ const GreenhouseDetails = () => {
       <Layout>
         <Navbar />
         <Content style={{ padding: "40px", textAlign: "center", backgroundColor: "#fff" }}>
-          <Typography.Text>Staklenik nije pronađen.</Typography.Text>
+          <Typography.Text>Plastenik nije pronađen.</Typography.Text>
         </Content>
       </Layout>
     );
@@ -112,7 +112,7 @@ const GreenhouseDetails = () => {
       <Navbar />
       <Content style={{ padding: "40px", backgroundColor: "#fff", minHeight: "100vh" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <Title level={2}>Detalji staklenika</Title>
+          <Title level={2}>Detalji plastenika</Title>
           <Card bordered style={{ marginBottom: "24px" }}>
             <Descriptions bordered column={1}>
               <Descriptions.Item label="Naziv">{attr.name}</Descriptions.Item>
@@ -125,8 +125,8 @@ const GreenhouseDetails = () => {
               <Descriptions.Item label="Prozori otvoreni">
                 {renderTag(attr.windows)}
               </Descriptions.Item>
-              <Descriptions.Item label="Postotak otvaranja prozora">
-                {attr.window_open_percentage ?? "N/A"}
+              <Descriptions.Item label="Kut otvorenosti prozora">
+                {attr.window_open_percentage ? `${attr.window_open_percentage}°` : "N/A"}
               </Descriptions.Item>
               <Descriptions.Item label="Kreiran">
                 {new Date(attr.created_at).toLocaleString()}
