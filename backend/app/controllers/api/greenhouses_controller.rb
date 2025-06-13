@@ -30,11 +30,14 @@ module Api
     end
 
     def measurments
-      if measurments_creator.create_measurments
-        head :ok
-      else
-        render json: { error: 'Failed to create measurments' }, status: :unprocessable_entity
-      end
+      measurments_creator.create_measurments
+      
+      head :ok
+      # if measurments_creator.create_measurments
+      #   head :ok
+      # else
+      #   render json: { error: 'Failed to create measurments' }, status: :unprocessable_entity
+      # end
     end
     
 

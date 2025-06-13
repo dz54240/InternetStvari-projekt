@@ -9,6 +9,7 @@ import {
   message,
   Tag,
   Descriptions,
+  Switch,
 } from "antd";
 import Navbar from "../components/Navbar";
 import { fetchApi, getToken } from "../utils/api";
@@ -35,50 +36,95 @@ const GreenhouseDetails = () => {
   const [temperatureData, setTemperatureData] = useState([]);
   const [moistureData, setMoistureData] = useState([]);
 
-  useEffect(() => {
-    const fetchGreenhouse = async () => {
-      try {
-        const token = getToken();
-        const response = await fetchApi(`/greenhouses/${id}`, "GET", null, {
+  const fetchData = async () => {
+    try {
+      const token = getToken();
+      const response = await fetchApi(`/greenhouses/${id}`, "GET", null, {
+        Authorization: `Bearer ${token}`,
+      });
+      setGreenhouse(response.data);
+
+      const tempResponse = await fetchApi(
+        `/temperature_measurements?greenhouse_id=${id}`,
+        "GET",
+        null,
+        {
           Authorization: `Bearer ${token}`,
-        });
-        setGreenhouse(response.data);
+        }
+      );
 
-        const tempResponse = await fetchApi(
-          `/temperature_measurements?greenhouse_id=${id}`,
-          "GET",
-          null,
-          {
-            Authorization: `Bearer ${token}`,
-          }
-        );
+      const moistResponse = await fetchApi(
+        `/moisture_measurements?greenhouse_id=${id}`,
+        "GET",
+        null,
+        {
+          Authorization: `Bearer ${token}`,
+        }
+      );
 
-        const moistResponse = await fetchApi(
-          `/moisture_measurements?greenhouse_id=${id}`,
-          "GET",
-          null,
-          {
-            Authorization: `Bearer ${token}`,
-          }
-        );
+      const formatData = (data) =>
+        data.map((item) => ({
+          value: item.attributes.value,
+          time: new Date(item.attributes.created_at).toLocaleString(),
+        }));
 
-        const formatData = (data) =>
-          data.map((item) => ({
-            value: item.attributes.value,
-            time: new Date(item.attributes.created_at).toLocaleString(),
-          }));
+      setTemperatureData(formatData(tempResponse.data));
+      setMoistureData(formatData(moistResponse.data));
+    } catch (error) {
+      message.error("Greška pri dohvaćanju podataka o plasteniku.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setTemperatureData(formatData(tempResponse.data));
-        setMoistureData(formatData(moistResponse.data));
-      } catch (error) {
-        message.error("Greška pri dohvaćanju podataka o plasteniku.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    fetchData();
 
-    fetchGreenhouse();
+    const intervalId = setInterval(fetchData, 10000);
+
+    return () => clearInterval(intervalId);
   }, [id]);
+
+  const handleLightingToggle = async (checked) => {
+    try {
+      const token = getToken();
+
+      await fetchApi(`/greenhouses/${id}/measurments`, "POST", {
+        data: {
+          lighting: checked.toString()
+        }
+      }, {
+        Authorization: `Bearer ${token}`,
+      });
+
+      // const webhookIP = "http://192.168.119.240:8123";
+      const webhookIP = "https://ou2prgpy53kvgseah31qrjwv27mvpv2g.ui.nabu.casa";
+      await fetch(`${webhookIP}/api/webhook/kontrola_svjetla`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data: {
+            light: checked
+          }
+        })
+      });
+
+      setGreenhouse(prev => ({
+        ...prev,
+        attributes: {
+          ...prev.attributes,
+          lighting: checked
+        }
+      }));
+
+      message.success(`Rasvjeta je ${checked ? 'uključena' : 'isključena'}`);
+    } catch (error) {
+      message.error("Greška pri kontroli rasvjete");
+      console.error("Error controlling lighting:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -120,7 +166,15 @@ const GreenhouseDetails = () => {
                 {renderTag(attr.irrigation)}
               </Descriptions.Item>
               <Descriptions.Item label="Rasvjeta">
-                {renderTag(attr.lighting)}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {renderTag(attr.lighting)}
+                  <Switch
+                    checked={attr.lighting}
+                    onChange={handleLightingToggle}
+                    checkedChildren="Uključeno"
+                    unCheckedChildren="Isključeno"
+                  />
+                </div>
               </Descriptions.Item>
               <Descriptions.Item label="Prozori otvoreni">
                 {renderTag(attr.windows)}
@@ -192,9 +246,12 @@ const GreenhouseDetails = () => {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={temperatureData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                <XAxis dataKey="time" tick={false} label={{ value: 'Vrijeme', position: 'bottom' }} />
                 <YAxis unit="°C" />
-                <Tooltip formatter={(value) => `${value} °C`} />
+                <Tooltip 
+                  formatter={(value) => [`${value} °C`, 'Iznos']} 
+                  labelFormatter={(time) => `Vrijeme: ${time}`} 
+                />
                 <Line type="monotone" dataKey="value" stroke="#ff4d4f" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -206,9 +263,12 @@ const GreenhouseDetails = () => {
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={moistureData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+                <XAxis dataKey="time" tick={false} label={{ value: 'Vrijeme', position: 'bottom' }} />
                 <YAxis unit="%" />
-                <Tooltip formatter={(value) => `${value} %`} />
+                <Tooltip 
+                  formatter={(value) => [`${value} %`, 'Iznos']} 
+                  labelFormatter={(time) => `Vrijeme: ${time}`} 
+                />
                 <Area type="monotone" dataKey="value" stroke="#1890ff" fill="#e6f7ff" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>

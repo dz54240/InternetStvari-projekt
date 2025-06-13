@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Layout, Button, Input, Typography, Space } from "antd";
+import { Layout, Button, Input, Typography, Space, message } from "antd";
 import Navbar from "../components/Navbar";
 import GreenhouseTable from "../components/GreenhouseTable";
 import GreenhouseModal from "../components/GreenhouseModal";
@@ -78,12 +78,18 @@ export default function Home() {
   const handleDeleteGreenhouse = async (id) => {
     try {
       const token = getToken();
-      await fetchApi(`/greenhouses/${id}`, "DELETE", null, {
+      const response = await fetchApi(`/greenhouses/${id}`, "DELETE", null, {
         Authorization: `Bearer ${token}`,
       });
-      setGreenhouses(greenhouses.filter((gh) => gh.id !== id));
+      
+      if (response.status === 204 || response.status === 200) {
+        setGreenhouses(prevGreenhouses => prevGreenhouses.filter(gh => gh.id !== id));
+      } else {
+        throw new Error('Failed to delete greenhouse');
+      }
     } catch (error) {
       console.error("Error deleting greenhouse:", error);
+      message.error("Greška pri brisanju plastenika.");
     }
   };
 
